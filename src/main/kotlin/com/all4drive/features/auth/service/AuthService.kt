@@ -30,7 +30,6 @@ class AuthService {
             val user = users.find { user ->
                 user.email == email && comparePassword(user.password, password.trim())
             }
-            println(user)
             return user?.email?.isNotEmpty() ?: false
         } else {
             false
