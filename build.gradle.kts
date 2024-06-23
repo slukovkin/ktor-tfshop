@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
     implementation("mysql:mysql-connector-java:8.0.11")
+    implementation("at.favre.lib:bcrypt:0.10.2")
 
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")

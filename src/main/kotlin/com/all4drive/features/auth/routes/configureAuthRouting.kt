@@ -13,13 +13,24 @@ fun Route.authRoutes() {
 
     route("/api/auth") {
         post("/login") {
-            call.respondText("Login", ContentType.Any, HttpStatusCode.OK)
+            try {
+                val candidate = call.receive<User>()
+                val resultRequest = authService.login(candidate.email, candidate.password)
+                if (resultRequest) {
+                    call.respondText("Доступ разрешен", ContentType.Any, HttpStatusCode.OK)
+                } else {
+                    call.respondText("Доступ запрещен", ContentType.Any, HttpStatusCode.OK)
+                }
+            } catch (err: Error) {
+                call.respondText("Произошла ошибка", ContentType.Any, HttpStatusCode.BadRequest)
+            }
+
         }
 
         post("/registration") {
             try {
                 val user = call.receive<User>()
-                if (authService.createUser(user)) {
+                if (authService.registration(user)) {
                     call.respond(HttpStatusCode.OK, "Пользователь успешно зарегистрирован")
                 } else {
                     call.respond(HttpStatusCode.OK, "Ошибка регистрации. Проверьте регистрационные данные")
