@@ -12,6 +12,8 @@ class AuthService {
 
     fun registration(candidate: User): Boolean {
         if (candidate.email.trim().isNotEmpty() && candidate.password.trim().isNotEmpty()) {
+            val uniqueUser = users.find { user -> user.email == candidate.email.trim() }
+            if (uniqueUser != null) return false
             val user = User(
                 id = UUID.randomUUID().toString(),
                 email = candidate.email,
