@@ -8,4 +8,12 @@ class UserService {
     fun getAllUsers(): List<User> {
         return users
     }
+
+    fun getUserByEmail(email: String): User? {
+        val user = users.find { user: User ->
+            user.email == email
+        }
+
+        return user
+    }
 }
