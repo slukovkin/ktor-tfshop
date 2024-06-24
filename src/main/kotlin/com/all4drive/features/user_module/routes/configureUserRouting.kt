@@ -1,12 +1,12 @@
-package com.all4drive.features.users.routes
+package com.all4drive.features.user_module.routes
 
-import com.all4drive.features.users.service.UserService
+import com.all4drive.features.user_module.service.UserService
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.userRoutes() {
-    val userService: UserService = UserService()
+    val userService = UserService()
 
     route("/api/users") {
         get {

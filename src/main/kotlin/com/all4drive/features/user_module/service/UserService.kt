@@ -1,4 +1,4 @@
-package com.all4drive.features.users.service
+package com.all4drive.features.user_module.service
 
 import com.all4drive.features.models.User
 

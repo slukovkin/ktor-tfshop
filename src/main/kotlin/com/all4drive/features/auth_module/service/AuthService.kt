@@ -1,8 +1,8 @@
-package com.all4drive.features.auth.service
+package com.all4drive.features.auth_module.service
 
 import com.all4drive.features.models.User
 import com.all4drive.features.utils.checkPassword
-import com.all4drive.features.utils.comparePassword
+import com.all4drive.features.utils.comparingHashAndPassword
 import com.all4drive.features.utils.generateHashFromPassword
 import com.all4drive.features.utils.validateEmail
 import java.util.*
@@ -28,7 +28,7 @@ class AuthService {
     fun login(email: String, password: String): Boolean {
         return if (validateEmail(email) && checkPassword(password)) {
             val user = users.find { user ->
-                user.email == email && comparePassword(user.password, password.trim())
+                user.email == email && comparingHashAndPassword(user.password, password.trim())
             }
             return user?.email?.isNotEmpty() ?: false
         } else {
