@@ -1,9 +1,9 @@
-package com.all4drive.features.auth_module.routes
+package com.all4drive.features.auth.routes
 
 import com.all4drive.database.Db
-import com.all4drive.features.auth_module.service.AuthService
+import com.all4drive.features.auth.service.AuthService
 import com.all4drive.features.models.User
-import com.all4drive.features.user_module.service.UserService
+import com.all4drive.features.user.service.UserService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*

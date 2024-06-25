@@ -1,7 +1,7 @@
-package com.all4drive.features.auth_module.service
+package com.all4drive.features.auth.service
 
 import com.all4drive.features.models.User
-import com.all4drive.features.user_module.service.UserService
+import com.all4drive.features.user.service.UserService
 import com.all4drive.features.utils.comparingHashAndPassword
 
 class AuthService(private val userService: UserService) {
