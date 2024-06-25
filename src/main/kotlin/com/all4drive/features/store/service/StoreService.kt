@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class StoreService(private val db: Database) {
+class StoreService(db: Database) {
     object Stores : Table() {
         val id = integer("id").autoIncrement()
         val title = varchar("store", length = 50)
@@ -16,7 +16,7 @@ class StoreService(private val db: Database) {
     }
 
     init {
-        transaction {
+        transaction(db) {
             SchemaUtils.create(Stores)
         }
     }
