@@ -1,7 +1,9 @@
 package com.all4drive.features.auth_module.routes
 
+import com.all4drive.database.Db
 import com.all4drive.features.auth_module.service.AuthService
 import com.all4drive.features.models.User
+import com.all4drive.features.user_module.service.UserService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -9,7 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.authRoutes() {
-    val authService = AuthService()
+    val authService = AuthService(userService = UserService(db = Db.database))
 
     route("/api/auth") {
         post("/login") {
@@ -19,10 +21,10 @@ fun Route.authRoutes() {
                 if (resultRequest) {
                     call.respondText("Доступ разрешен", ContentType.Any, HttpStatusCode.OK)
                 } else {
-                    call.respondText("Доступ запрещен", ContentType.Any, HttpStatusCode.OK)
+                    call.respondText("Ошибка логина или пароля", ContentType.Any, HttpStatusCode.Forbidden)
                 }
             } catch (err: Error) {
-                call.respondText("Произошла ошибка", ContentType.Any, HttpStatusCode.BadRequest)
+                call.respondText("Ошибка запроса", ContentType.Any, HttpStatusCode.BadRequest)
             }
 
         }
