@@ -21,10 +21,10 @@ fun Route.authRoutes() {
                 if (resultRequest) {
                     call.respondText("Доступ разрешен", ContentType.Any, HttpStatusCode.OK)
                 } else {
-                    call.respondText("Доступ запрещен", ContentType.Any, HttpStatusCode.OK)
+                    call.respondText("Ошибка логина или пароля", ContentType.Any, HttpStatusCode.Forbidden)
                 }
             } catch (err: Error) {
-                call.respondText("Произошла ошибка", ContentType.Any, HttpStatusCode.BadRequest)
+                call.respondText("Ошибка запроса", ContentType.Any, HttpStatusCode.BadRequest)
             }
 
         }

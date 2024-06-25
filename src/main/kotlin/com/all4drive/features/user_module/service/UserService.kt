@@ -61,7 +61,8 @@ class UserService(db: Database) {
                         it[Users.firstName],
                         it[Users.lastName],
                         it[Users.address],
-                        it[Users.avatarUrl]
+                        it[Users.avatarUrl],
+                        it[Users.role]
                     )
                 }
                 .singleOrNull()
@@ -97,6 +98,7 @@ class UserService(db: Database) {
                 it[lastName] = user.lastName
                 it[address] = user.address
                 it[avatarUrl] = user.urlAvatar
+                it[Users.role] = user.role
             }
         }
     }

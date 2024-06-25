@@ -2,6 +2,7 @@ package com.all4drive.features.auth_module.service
 
 import com.all4drive.features.models.User
 import com.all4drive.features.user_module.service.UserService
+import com.all4drive.features.utils.comparingHashAndPassword
 
 class AuthService(private val userService: UserService) {
 
@@ -10,15 +11,9 @@ class AuthService(private val userService: UserService) {
         return false
     }
 
-    fun login(email: String, password: String): Boolean {
-//        return if (validateEmail(email) && checkPassword(password)) {
-//            val user = users.find { user ->
-//                user.email == email && comparingHashAndPassword(user.password, password.trim())
-//            }
-//            return user?.email?.isNotEmpty() ?: false
-//        } else {
-//            false
-//        }
-        return false
+    suspend fun login(email: String, password: String): Boolean {
+        val user = userService.getUserByEmail(email) ?: return false
+
+        return comparingHashAndPassword(user.password, password)
     }
 }
