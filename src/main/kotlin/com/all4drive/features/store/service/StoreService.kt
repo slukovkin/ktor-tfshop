@@ -1,5 +1,6 @@
 package com.all4drive.features.store.service
 
+import com.all4drive.features.product.service.ProductService
 import com.all4drive.features.store.model.Store
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
@@ -9,7 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 class StoreService(db: Database) {
     object Stores : Table() {
-        val id = integer("id").autoIncrement()
+        val id = integer("id").autoIncrement().references(ProductService.Products.id)
         val title = varchar("store", length = 50)
 
         override val primaryKey = PrimaryKey(id)

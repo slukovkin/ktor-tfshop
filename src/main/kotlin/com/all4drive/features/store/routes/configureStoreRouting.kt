@@ -15,16 +15,18 @@ fun Route.storeRouting() {
     route("/api/store") {
         post {
             val store = call.receive<Store>()
-            storeService.createStore(store)
-            call.respond(HttpStatusCode.OK, "Успешно создан")
+            if (storeService.createStore(store) != 0)
+                call.respond(HttpStatusCode.OK, "Успешно создан")
+            else
+                call.respond(HttpStatusCode.Conflict, "Склад уже существует в БД")
         }
 
         delete("{id}") {
             val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("TITLE")
             if (storeService.deleteStore(id) != 0)
-                call.respond(HttpStatusCode.OK)
+                call.respond(HttpStatusCode.OK, "Склад успешно удален из БД")
             else
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.NotFound, "Склад не найден в БД")
         }
     }
 }
