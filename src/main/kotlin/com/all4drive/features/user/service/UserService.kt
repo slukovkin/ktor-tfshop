@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class UserService(db: Database) {
+class UserService() {
     object Users : Table() {
         val id = integer("id").autoIncrement()
         val email = varchar("email", length = 50)
@@ -24,7 +24,7 @@ class UserService(db: Database) {
     }
 
     init {
-        transaction(db) {
+        transaction {
             SchemaUtils.create(Users)
         }
     }

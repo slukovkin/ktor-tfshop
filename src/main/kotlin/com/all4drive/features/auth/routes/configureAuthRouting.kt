@@ -1,6 +1,5 @@
 package com.all4drive.features.auth.routes
 
-import com.all4drive.database.Db
 import com.all4drive.features.auth.service.AuthService
 import com.all4drive.features.user.models.User
 import com.all4drive.features.user.service.UserService
@@ -11,7 +10,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.authRoutes() {
-    val authService = AuthService(userService = UserService(db = Db.database))
+    val authService = AuthService(userService = UserService())
 
     route("/api/auth") {
         post("/login") {

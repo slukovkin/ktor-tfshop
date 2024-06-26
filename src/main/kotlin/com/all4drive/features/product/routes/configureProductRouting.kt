@@ -1,6 +1,5 @@
 package com.all4drive.features.product.routes
 
-import com.all4drive.database.Db
 import com.all4drive.features.product.model.Product
 import com.all4drive.features.product.service.ProductService
 import io.ktor.http.*
@@ -10,7 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.productRoutes() {
-    val productService = ProductService(Db.database)
+    val productService = ProductService()
 
     route("/api/products") {
         get {
