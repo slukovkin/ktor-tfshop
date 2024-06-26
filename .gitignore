@@ -1,6 +1,7 @@
 .gradle
 
 /src/main/kotlin/com/all4drive/config/DatabaseConfig.kt
+/src/main/kotlin/com/all4drive/config/JwtConfig.kt
 
 build/
 !gradle/wrapper/gradle-wrapper.jar
