@@ -4,11 +4,10 @@ import com.all4drive.config.DatabaseConfig
 import org.jetbrains.exposed.sql.Database
 
 object Db {
-    private val config = DatabaseConfig.dbconfig
     val database = Database.connect(
-        url = config.url,
-        user = config.user,
-        driver = config.driver,
-        password = config.password
+        url = DatabaseConfig.url,
+        user = DatabaseConfig.user,
+        driver = DatabaseConfig.driver,
+        password = DatabaseConfig.password
     )
 }
