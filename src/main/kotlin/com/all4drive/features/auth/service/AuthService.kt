@@ -1,6 +1,6 @@
 package com.all4drive.features.auth.service
 
-import com.all4drive.features.models.User
+import com.all4drive.features.user.models.User
 import com.all4drive.features.user.service.UserService
 import com.all4drive.features.utils.comparingHashAndPassword
 

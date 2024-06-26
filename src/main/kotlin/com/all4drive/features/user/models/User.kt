@@ -1,4 +1,4 @@
-package com.all4drive.features.models
+package com.all4drive.features.user.models
 
 @kotlinx.serialization.Serializable
 data class User(

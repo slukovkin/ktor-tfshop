@@ -1,7 +1,7 @@
 package com.all4drive.features.user.service
 
-import com.all4drive.features.models.Role
-import com.all4drive.features.models.User
+import com.all4drive.features.user.models.Role
+import com.all4drive.features.user.models.User
 import com.all4drive.features.utils.generateHashFromPassword
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
@@ -98,7 +98,7 @@ class UserService(db: Database) {
                 it[lastName] = user.lastName
                 it[address] = user.address
                 it[avatarUrl] = user.urlAvatar
-                it[Users.role] = user.role
+                it[role] = user.role
             }
         }
     }
