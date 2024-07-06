@@ -12,6 +12,21 @@ fun Route.storeRouting() {
 
     val storeService = StoreService()
     route("/api/store") {
+
+        get {
+            val stores = storeService.getAllStores()
+            call.respond(HttpStatusCode.OK, stores)
+        }
+
+        get("{title}") {
+            val title = call.parameters["title"] ?: throw IllegalArgumentException("TITLE")
+            val store = storeService.getStoreByTitle(title)
+            if (store != null)
+                call.respond(HttpStatusCode.OK, store)
+            else
+                call.respond(HttpStatusCode.NotFound)
+        }
+
         post {
             val store = call.receive<Store>()
             if (storeService.createStore(store) != 0)

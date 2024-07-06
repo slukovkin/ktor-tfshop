@@ -5,9 +5,9 @@ import org.jetbrains.exposed.sql.Database
 
 object Db {
     val database = Database.connect(
-        url = DatabaseConfig.url,
-        user = DatabaseConfig.user,
-        driver = DatabaseConfig.driver,
-        password = DatabaseConfig.password
+        url = DatabaseConfig.URL,
+        user = DatabaseConfig.USER,
+        driver = DatabaseConfig.DRIVER,
+        password = DatabaseConfig.PASSWORD
     )
 }

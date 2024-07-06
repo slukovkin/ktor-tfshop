@@ -6,6 +6,6 @@ data class Product(
     val code: Int,
     val article: String,
     val title: String,
-    val qty: Double,
+    val qty: Double = 0.0,
     val cross: Int
 )

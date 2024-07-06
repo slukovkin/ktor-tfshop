@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class ProductService() {
+class ProductService {
 
     object Products : Table() {
         val id = integer("id").autoIncrement()
@@ -99,6 +99,7 @@ class ProductService() {
     suspend fun updateProductByCode(code: Int, product: Product) {
         dbQuery {
             Products.update({ Products.code eq code }) {
+                it[article] = product.article
                 it[title] = product.title
                 it[qty] = product.qty
             }
