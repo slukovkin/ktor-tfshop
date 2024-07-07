@@ -1,6 +1,7 @@
 package com.all4drive.features.product.service
 
 import com.all4drive.features.product.model.Product
+import com.all4drive.features.product.model.ProductInStoreRespond
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -20,14 +21,81 @@ class ProductService {
         override val primaryKey = PrimaryKey(id)
     }
 
+    object ProductInStore : Table() {
+        val id = integer("prId").autoIncrement()
+        val idStore = integer("idStore")
+        val idProduct = integer("idProduct")
+        val productQty = double("productQty")
+        val productPriceIn = double("productPriceIn")
+
+        override val primaryKey = PrimaryKey(ProductInStore.id)
+    }
+
     init {
         transaction {
             SchemaUtils.create(Products)
+            SchemaUtils.create(ProductInStore)
         }
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
+
+    //TODO не работает обновление количества!
+    suspend fun insertProductToStore(storeId: Int, productId: Int, qty: Double, priceIn: Double) {
+        dbQuery {
+            val product = searchProductOnStoreById(productId)
+            if (product != null) {
+                ProductInStore.insert {
+                    it[idStore] = storeId
+                    it[idProduct] = productId
+                    it[productQty] = qty
+                    it[productPriceIn] = priceIn
+                }[ProductInStore.id]
+            } else {
+                dbQuery {
+                    ProductInStore.update({ ProductInStore.idProduct eq productId }) {
+                        it[productQty] = qty
+                        it[productPriceIn] = productPriceIn
+                    }
+                }
+            }
+
+        }
+    }
+
+    private suspend fun searchProductOnStoreById(id: Int): Product? {
+        return dbQuery {
+            ProductInStore.select { ProductInStore.idProduct eq id }
+                .let {
+                    dbQuery {
+                        getProductById(id)
+                    }
+                }
+        }
+    }
+
+    /*
+        SELECT pr_code, pr_article, pr_title, product_qty FROM ProductInStore  LEFT JOIN Products ON Products.idProduct = ProductInStore.idProduct
+            WHERE ProductInStore.idStore = storeId;
+     */
+    suspend fun getProductsFromStore(storeId: Int): List<ProductInStoreRespond> {
+        return dbQuery {
+            ProductInStore.select { ProductInStore.idStore eq storeId }
+                .map {
+                    val product = searchProductOnStoreById(it[ProductInStore.idProduct])
+                        ?: throw IllegalArgumentException("Product not found")
+                    ProductInStoreRespond(
+                        productId = product.id!!,
+                        code = product.code,
+                        article = product.article,
+                        title = product.title,
+                        productQty = it[ProductInStore.productQty],
+                        productPriceIn = it[ProductInStore.productPriceIn]
+                    )
+                }
+        }
+    }
 
     suspend fun getAllProducts(): List<Product> {
         return dbQuery {
@@ -42,6 +110,23 @@ class ProductService {
                         it[Products.cross]
                     )
                 }
+        }
+    }
+
+    suspend fun getProductById(id: Int): Product? {
+        return dbQuery {
+            Products.select { Products.id eq id }
+                .map {
+                    Product(
+                        it[Products.id],
+                        it[Products.code],
+                        it[Products.article],
+                        it[Products.title],
+                        it[Products.qty],
+                        it[Products.cross]
+                    )
+                }
+                .singleOrNull()
         }
     }
 

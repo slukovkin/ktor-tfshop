@@ -1,6 +1,7 @@
 package com.all4drive.features.product.routes
 
 import com.all4drive.features.product.model.Product
+import com.all4drive.features.product.model.ProductInStoreReceive
 import com.all4drive.features.product.service.ProductService
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -29,12 +30,24 @@ fun Route.productRoutes() {
             call.respond(products)
         }
 
+        get("/store/{storeId}") {
+            val storeId = call.parameters["storeId"]?.toInt() ?: throw IllegalArgumentException("STOREID")
+            val products = productService.getProductsFromStore(storeId)
+            call.respond(products)
+        }
+
         post {
             val candidate = call.receive<Product>()
             if (productService.create(candidate) != 0)
                 call.respond(HttpStatusCode.OK)
             else
                 call.respond(HttpStatusCode.Conflict)
+        }
+
+        post("/add") {
+            val data = call.receive<ProductInStoreReceive>()
+            productService.insertProductToStore(data.storeId, data.productId, data.productQty, data.productPriceIn)
+            call.respond(HttpStatusCode.OK, "Product added in store")
         }
 
         patch("{code}") {
