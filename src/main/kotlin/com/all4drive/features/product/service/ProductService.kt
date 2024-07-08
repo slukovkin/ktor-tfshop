@@ -41,7 +41,23 @@ class ProductService {
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    //TODO не работает обновление количества!
+    private suspend fun getProductById(id: Int): Product? {
+        return dbQuery {
+            Products.select { Products.id eq id }
+                .map {
+                    Product(
+                        it[Products.id],
+                        it[Products.code],
+                        it[Products.article],
+                        it[Products.title],
+                        it[Products.qty],
+                        it[Products.cross]
+                    )
+                }
+                .singleOrNull()
+        }
+    }
+
     suspend fun insertProductToStore(storeId: Int, productId: Int, qty: Double, priceIn: Double) {
         dbQuery {
             ProductInStore.insert {
@@ -62,14 +78,13 @@ class ProductService {
         }
     }
 
-    suspend fun searchProductOnStoreById(id: Int): Boolean {
+    suspend fun searchProductOnStoreById(id: Int, storeId: Int): Boolean {
         return dbQuery {
-            ProductInStore.select { ProductInStore.idProduct eq id }
+            ProductInStore.select { (ProductInStore.idProduct eq id) and (ProductInStore.idStore eq storeId) }
                 .empty()
         }
     }
 
-    //TODO Вывод всего товара в магазине
     /**
     SELECT pr_code, pr_article, pr_title, product_qty FROM ProductInStore  LEFT JOIN Products ON Products.idProduct = ProductInStore.idProduct
     WHERE ProductInStore.idStore = storeId;
@@ -106,23 +121,6 @@ class ProductService {
                         it[Products.cross]
                     )
                 }
-        }
-    }
-
-    private suspend fun getProductById(id: Int): Product? {
-        return dbQuery {
-            Products.select { Products.id eq id }
-                .map {
-                    Product(
-                        it[Products.id],
-                        it[Products.code],
-                        it[Products.article],
-                        it[Products.title],
-                        it[Products.qty],
-                        it[Products.cross]
-                    )
-                }
-                .singleOrNull()
         }
     }
 

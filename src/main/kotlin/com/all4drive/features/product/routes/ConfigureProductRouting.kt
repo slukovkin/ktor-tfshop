@@ -46,7 +46,7 @@ fun Route.productRoutes() {
 
         post("/add") {
             val data = call.receive<ProductInStoreReceive>()
-            val product = productService.searchProductOnStoreById(data.productId)
+            val product = productService.searchProductOnStoreById(data.productId, data.storeId)
 
             if (!product) {
                 productService.updateProductOnStore(data.productId, data.productQty, data.productPriceIn)
