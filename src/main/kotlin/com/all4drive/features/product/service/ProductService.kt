@@ -28,7 +28,7 @@ class ProductService {
         var productQty = double("productQty")
         var productPriceIn = double("productPriceIn")
 
-        override val primaryKey = PrimaryKey(ProductInStore.id)
+        override val primaryKey = PrimaryKey(id)
     }
 
     init {
@@ -109,7 +109,7 @@ class ProductService {
         }
     }
 
-    suspend fun getProductById(id: Int): Product? {
+    private suspend fun getProductById(id: Int): Product? {
         return dbQuery {
             Products.select { Products.id eq id }
                 .map {
