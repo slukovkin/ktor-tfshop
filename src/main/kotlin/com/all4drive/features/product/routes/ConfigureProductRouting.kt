@@ -30,11 +30,11 @@ fun Route.productRoutes() {
             call.respond(products)
         }
 
-        get("/store/{storeId}") {
-            val storeId = call.parameters["storeId"]?.toInt() ?: throw IllegalArgumentException("STOREID")
-            val products = productService.getProductsFromStore(storeId)
-            call.respond(products)
-        }
+//        get("/store/{storeId}") {
+//            val storeId = call.parameters["storeId"]?.toInt() ?: throw IllegalArgumentException("STOREID")
+//            val products = productService.getProductsFromStore(storeId)
+//            call.respond(products)
+//        }
 
         post {
             val candidate = call.receive<Product>()
@@ -46,8 +46,15 @@ fun Route.productRoutes() {
 
         post("/add") {
             val data = call.receive<ProductInStoreReceive>()
-            productService.insertProductToStore(data.storeId, data.productId, data.productQty, data.productPriceIn)
-            call.respond(HttpStatusCode.OK, "Product added in store")
+            val product = productService.searchProductOnStoreById(data.productId)
+
+            if (!product) {
+                productService.updateProductOnStore(data.productId, data.productQty, data.productPriceIn)
+                call.respond(HttpStatusCode.OK, "Product updated")
+            } else {
+                productService.insertProductToStore(data.storeId, data.productId, data.productQty, data.productPriceIn)
+                call.respond(HttpStatusCode.OK, "Product added in store")
+            }
         }
 
         patch("{code}") {
