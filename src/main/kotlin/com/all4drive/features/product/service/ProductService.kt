@@ -1,6 +1,7 @@
 package com.all4drive.features.product.service
 
 import com.all4drive.features.product.model.Product
+import com.all4drive.features.product.model.ProductInStoreRespond
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -74,23 +75,23 @@ class ProductService {
     WHERE ProductInStore.idStore = storeId;
      **/
 
-//    suspend fun getProductsFromStore(storeId: Int): List<ProductInStoreRespond> {
-//        return dbQuery {
-//            ProductInStore.select { ProductInStore.idStore eq storeId }
-//                .map {
-//                    val product = searchProductOnStoreById(it[ProductInStore.idProduct])
-//                        ?: throw IllegalArgumentException("Product not found")
-//                    ProductInStoreRespond(
-//                        productId = product.id!!,
-//                        code = product.code,
-//                        article = product.article,
-//                        title = product.title,
-//                        productQty = it[ProductInStore.productQty],
-//                        productPriceIn = it[ProductInStore.productPriceIn]
-//                    )
-//                }
-//        }
-//    }
+    suspend fun getProductsFromStore(storeId: Int): List<ProductInStoreRespond> {
+        return dbQuery {
+            ProductInStore.select { ProductInStore.idStore eq storeId }
+                .map {
+                    val product = getProductById(it[ProductInStore.idProduct])
+                        ?: throw IllegalArgumentException("Product not found")
+                    ProductInStoreRespond(
+                        productId = product.id!!,
+                        code = product.code,
+                        article = product.article,
+                        title = product.title,
+                        productQty = it[ProductInStore.productQty],
+                        productPriceIn = it[ProductInStore.productPriceIn]
+                    )
+                }
+        }
+    }
 
     suspend fun getAllProducts(): List<Product> {
         return dbQuery {

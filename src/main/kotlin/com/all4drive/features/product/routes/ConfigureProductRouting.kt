@@ -30,11 +30,11 @@ fun Route.productRoutes() {
             call.respond(products)
         }
 
-//        get("/store/{storeId}") {
-//            val storeId = call.parameters["storeId"]?.toInt() ?: throw IllegalArgumentException("STOREID")
-//            val products = productService.getProductsFromStore(storeId)
-//            call.respond(products)
-//        }
+        get("/store/{storeId}") {
+            val storeId = call.parameters["storeId"]?.toInt() ?: throw IllegalArgumentException("STOREID")
+            val products = productService.getProductsFromStore(storeId)
+            call.respond(products)
+        }
 
         post {
             val candidate = call.receive<Product>()
