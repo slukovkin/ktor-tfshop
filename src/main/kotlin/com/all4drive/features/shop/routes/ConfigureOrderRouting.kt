@@ -22,7 +22,7 @@ fun Route.orderRouting() {
         get("/{orderId}") {
             val orderId = call.parameters["orderId"]?.toInt() ?: throw IllegalArgumentException("Failed OrderId")
             val order = orderService.getOrderByOrderId(orderId)
-            if (order == null)
+            if (order.isEmpty())
                 call.respond(HttpStatusCode.NotFound)
             else
                 call.respond(HttpStatusCode.OK, order)

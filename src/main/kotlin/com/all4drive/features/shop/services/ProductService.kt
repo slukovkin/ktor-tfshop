@@ -15,7 +15,6 @@ class ProductService {
         val code = integer("code")
         val article = varchar("article", length = 100)
         val title = varchar("title", length = 200)
-        val qty = double("qty")
         val cross = integer("cross")
 
         override val primaryKey = PrimaryKey(id)
