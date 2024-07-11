@@ -2,6 +2,7 @@ package com.all4drive.features.shop.services
 
 import com.all4drive.features.shop.models.user.Role
 import com.all4drive.features.shop.models.user.User
+import com.all4drive.features.shop.repositories.UserRepository
 import com.all4drive.utils.generateHashFromPassword
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
@@ -9,7 +10,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class UserService {
+class UserService : UserRepository {
     object Users : Table() {
         val id = integer("id").autoIncrement()
         val email = varchar("email", length = 50)
@@ -32,7 +33,7 @@ class UserService {
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    suspend fun getAllUsers(): List<User> {
+    override suspend fun getAllUsers(): List<User> {
         return dbQuery {
             Users.selectAll()
                 .map {
@@ -50,7 +51,7 @@ class UserService {
         }
     }
 
-    suspend fun getUserByEmail(email: String): User? {
+    override suspend fun getUserByEmail(email: String): User? {
         return dbQuery {
             Users.select { Users.email eq email }
                 .map {
@@ -69,7 +70,7 @@ class UserService {
         }
     }
 
-    suspend fun create(user: User): Int = dbQuery {
+    override suspend fun create(user: User): Int = dbQuery {
         val isFound = getUserByEmail(user.email)
         if (isFound != null) return@dbQuery 0
         Users.insert {
@@ -83,14 +84,14 @@ class UserService {
         }[Users.id]
     }
 
-    suspend fun deleteUserById(id: Int) {
-        dbQuery {
+    override suspend fun deleteUserById(id: Int): Int {
+        return dbQuery {
             Users.deleteWhere { Users.id eq id }
         }
     }
 
-    suspend fun update(id: Int, user: User) {
-        dbQuery {
+    override suspend fun update(id: Int, user: User): Int {
+        return dbQuery {
             Users.update({ Users.id eq id }) {
                 it[email] = user.email
                 it[password] = generateHashFromPassword(user.password)
