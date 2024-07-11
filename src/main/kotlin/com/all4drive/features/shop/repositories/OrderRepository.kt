@@ -16,12 +16,12 @@ interface OrderRepository {
     suspend fun getAllOrdersByUserId(userId: Int): Order?
 
     // Создзание заказа пользователя
-    suspend fun createOrder(userId: Int): Int
+    suspend fun createOrder(order: Order): Int
 
     // Изменение заказа пользователя
     suspend fun updateOrderByOrderId(orderId: Int): Boolean
 
     // Удаление заказа пользователя по ID заказа
-    suspend fun deleteOrderByOrderId(orderId: Int): Boolean
+    suspend fun deleteOrderByOrderId(orderId: Int): Int
 
 }

@@ -2,13 +2,14 @@ package com.all4drive.features.shop.services
 
 import com.all4drive.features.shop.models.product.Product
 import com.all4drive.features.shop.models.product.ProductInStoreRespond
+import com.all4drive.features.shop.repositories.ProductRepository
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class ProductService {
+class ProductService : ProductRepository {
 
     object Products : Table() {
         val id = integer("id").autoIncrement()
@@ -40,7 +41,7 @@ class ProductService {
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    private suspend fun getProductById(id: Int): Product? {
+    override suspend fun getProductById(id: Int): Product? {
         return dbQuery {
             Products.select { Products.id eq id }
                 .map {
@@ -56,8 +57,8 @@ class ProductService {
         }
     }
 
-    suspend fun insertProductToStore(storeId: Int, productId: Int, qty: Double, priceIn: Double) {
-        dbQuery {
+    override suspend fun insertProductToStore(storeId: Int, productId: Int, qty: Double, priceIn: Double): Int {
+        return dbQuery {
             ProductInStore.insert {
                 it[idStore] = storeId
                 it[idProduct] = productId
@@ -67,7 +68,7 @@ class ProductService {
         }
     }
 
-    suspend fun updateProductOnStore(productId: Int, qty: Double, priceIn: Double) {
+    override suspend fun updateProductOnStore(productId: Int, qty: Double, priceIn: Double) {
         dbQuery {
             ProductInStore.update({ ProductInStore.idProduct eq productId }) {
                 it[productQty] = qty
@@ -76,7 +77,7 @@ class ProductService {
         }
     }
 
-    suspend fun searchProductOnStoreById(id: Int, storeId: Int): Boolean {
+    override suspend fun searchProductOnStoreById(id: Int, storeId: Int): Boolean {
         return dbQuery {
             ProductInStore.select { (ProductInStore.idProduct eq id) and (ProductInStore.idStore eq storeId) }
                 .empty()
@@ -88,7 +89,7 @@ class ProductService {
     WHERE ProductInStore.idStore = storeId;
      **/
 
-    suspend fun getProductsFromStore(storeId: Int): List<ProductInStoreRespond> {
+    override suspend fun getProductsFromStore(storeId: Int): List<ProductInStoreRespond> {
         return dbQuery {
             ProductInStore.select { ProductInStore.idStore eq storeId }
                 .map {
@@ -106,7 +107,7 @@ class ProductService {
         }
     }
 
-    suspend fun getAllProducts(): List<Product> {
+    override suspend fun getAllProducts(): List<Product> {
         return dbQuery {
             Products.selectAll()
                 .map {
@@ -121,7 +122,7 @@ class ProductService {
         }
     }
 
-    suspend fun getProductByCode(code: Int): Product? {
+    override suspend fun getProductByCode(code: Int): Product? {
         return dbQuery {
             Products.select { Products.code eq code }
                 .map {
@@ -137,7 +138,7 @@ class ProductService {
         }
     }
 
-    suspend fun getProductsByCross(cross: Int): List<Product> {
+    override suspend fun getProductsByCross(cross: Int): List<Product> {
         return dbQuery {
             Products.select { Products.cross eq cross }
                 .map {
@@ -152,7 +153,7 @@ class ProductService {
         }
     }
 
-    suspend fun create(product: Product): Int = dbQuery {
+    override suspend fun create(product: Product): Int = dbQuery {
         val isFound = getProductByCode(product.code)
         if (isFound != null) return@dbQuery 0
         Products.insert {
@@ -163,14 +164,14 @@ class ProductService {
         }[Products.id]
     }
 
-    suspend fun deleteProductByCode(code: Int) {
-        dbQuery {
+    override suspend fun deleteProductByCode(code: Int): Int {
+        return dbQuery {
             Products.deleteWhere { Products.code eq code }
         }
     }
 
-    suspend fun updateProductByCode(code: Int, product: Product) {
-        dbQuery {
+    override suspend fun updateProductByCode(code: Int, product: Product): Int {
+        return dbQuery {
             Products.update({ Products.code eq code }) {
                 it[article] = product.article
                 it[title] = product.title

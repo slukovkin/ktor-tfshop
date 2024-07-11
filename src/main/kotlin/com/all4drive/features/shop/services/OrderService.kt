@@ -4,9 +4,8 @@ import com.all4drive.features.shop.models.order.Order
 import com.all4drive.features.shop.models.order.ProductInOrderResponse
 import com.all4drive.features.shop.repositories.OrderRepository
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -65,6 +64,7 @@ class OrderService : OrderRepository {
 
             (ProductService.Products innerJoin Orders)
                 .slice(
+                    ProductService.Products.id,
                     ProductService.Products.code,
                     ProductService.Products.article,
                     ProductService.Products.title,
@@ -73,6 +73,7 @@ class OrderService : OrderRepository {
                 .select { Orders.orderId eq orderId }
                 .map {
                     ProductInOrderResponse(
+                        it[ProductService.Products.id],
                         it[ProductService.Products.code],
                         it[ProductService.Products.article],
                         it[ProductService.Products.title],
@@ -86,15 +87,44 @@ class OrderService : OrderRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun createOrder(userId: Int): Int {
-        TODO("Not yet implemented")
+    private suspend fun searchProductToOrders(order: Order): Int? {
+        return dbQuery {
+            Orders.select(
+                (Orders.productId eq order.productId)
+                        and (Orders.userId eq order.userId)
+                        and (Orders.orderId eq order.orderId)
+                        and (Orders.storeId eq order.storeId)
+            )
+                .map {
+                    it[Orders.id]
+                }
+        }.singleOrNull()
+    }
+
+    override suspend fun createOrder(order: Order): Int {
+        val isExists = searchProductToOrders(order)
+        return if (isExists == null) {
+            dbQuery {
+                Orders.insert {
+                    it[userId] = order.userId
+                    it[orderId] = order.orderId
+                    it[storeId] = order.storeId
+                    it[productId] = order.productId
+                    it[productQty] = order.productQty
+                }[Orders.id]
+            }
+        } else {
+            0
+        }
     }
 
     override suspend fun updateOrderByOrderId(orderId: Int): Boolean {
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteOrderByOrderId(orderId: Int): Boolean {
-        TODO("Not yet implemented")
+    override suspend fun deleteOrderByOrderId(orderId: Int): Int {
+        return dbQuery {
+            Orders.deleteWhere { Orders.orderId eq orderId }
+        }
     }
 }
