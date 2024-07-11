@@ -1,7 +1,8 @@
 package com.all4drive.features.shop.services
 
 import com.all4drive.features.shop.models.order.Order
-import com.all4drive.features.shop.models.order.ProductInOrderResponse
+import com.all4drive.features.shop.models.order.ResponseOnProductsInOrder
+import com.all4drive.features.shop.models.order.ResponseToUserOrders
 import com.all4drive.features.shop.repositories.OrderRepository
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
@@ -46,20 +47,7 @@ class OrderService : OrderRepository {
         }
     }
 
-    /*
-                Orders.select { Orders.orderId eq orderId }
-                .map {
-                    Order(
-                        it[Orders.userId],
-                        it[Orders.orderId],
-                        it[Orders.storeId],
-                        it[Orders.productId],
-                        it[Orders.productQty]
-                    )
-                }
-    */
-
-    override suspend fun getOrderByOrderId(orderId: Int): List<ProductInOrderResponse> {
+    override suspend fun getOrderByOrderId(orderId: Int): List<ResponseOnProductsInOrder> {
         return dbQuery {
 
             (ProductService.Products innerJoin Orders)
@@ -68,23 +56,48 @@ class OrderService : OrderRepository {
                     ProductService.Products.code,
                     ProductService.Products.article,
                     ProductService.Products.title,
-                    Orders.productQty
+                    Orders.productQty,
+                    Orders.storeId
                 )
                 .select { Orders.orderId eq orderId }
                 .map {
-                    ProductInOrderResponse(
+                    ResponseOnProductsInOrder(
                         it[ProductService.Products.id],
                         it[ProductService.Products.code],
                         it[ProductService.Products.article],
                         it[ProductService.Products.title],
-                        it[Orders.productQty]
+                        it[Orders.productQty],
+                        it[Orders.storeId]
                     )
                 }
         }
     }
 
-    override suspend fun getAllOrdersByUserId(userId: Int): Order? {
-        TODO("Not yet implemented")
+    override suspend fun getAllOrdersByUserId(userId: Int): List<ResponseToUserOrders> {
+        return dbQuery {
+            (ProductService.Products innerJoin Orders)
+                .slice(
+                    ProductService.Products.id,
+                    ProductService.Products.code,
+                    ProductService.Products.article,
+                    ProductService.Products.title,
+                    Orders.productQty,
+                    Orders.orderId,
+                    Orders.storeId
+                )
+                .select { Orders.userId eq userId }
+                .map {
+                    ResponseToUserOrders(
+                        it[ProductService.Products.id],
+                        it[ProductService.Products.code],
+                        it[ProductService.Products.article],
+                        it[ProductService.Products.title],
+                        it[Orders.productQty],
+                        it[Orders.orderId],
+                        it[Orders.storeId]
+                    )
+                }
+        }
     }
 
     private suspend fun searchProductToOrders(order: Order): Int? {

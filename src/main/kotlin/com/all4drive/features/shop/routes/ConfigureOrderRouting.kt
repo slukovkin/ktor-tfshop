@@ -31,7 +31,14 @@ fun Route.orderRouting() {
         }
 
         // Получение всех заказов пользователя по ID полльзователя
-        get("/user/{userId}") {}
+        get("/user/{userId}") {
+            val userId = call.parameters["userId"]?.toInt() ?: throw IllegalArgumentException("Failed UserId")
+            val orders = orderService.getAllOrdersByUserId(userId)
+            if (orders.isEmpty())
+                call.respond(HttpStatusCode.NotFound)
+            else
+                call.respond(HttpStatusCode.OK, orders)
+        }
 
         // Создзание заказа пользователя
         post("/add") {

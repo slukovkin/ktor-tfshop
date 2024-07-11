@@ -1,7 +1,8 @@
 package com.all4drive.features.shop.repositories
 
 import com.all4drive.features.shop.models.order.Order
-import com.all4drive.features.shop.models.order.ProductInOrderResponse
+import com.all4drive.features.shop.models.order.ResponseOnProductsInOrder
+import com.all4drive.features.shop.models.order.ResponseToUserOrders
 
 
 interface OrderRepository {
@@ -10,10 +11,10 @@ interface OrderRepository {
     suspend fun getAllOrdersByStoreId(storeId: Int): List<Order>
 
     // Получение заказа по ID заказа
-    suspend fun getOrderByOrderId(orderId: Int): List<ProductInOrderResponse>
+    suspend fun getOrderByOrderId(orderId: Int): List<ResponseOnProductsInOrder>
 
     // Получение всех заказов пользователя по ID полльзователя
-    suspend fun getAllOrdersByUserId(userId: Int): Order?
+    suspend fun getAllOrdersByUserId(userId: Int): List<ResponseToUserOrders>
 
     // Создзание заказа пользователя
     suspend fun createOrder(order: Order): Int
