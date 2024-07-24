@@ -31,7 +31,7 @@ fun Route.authRoutes() {
         post("/registration") {
             try {
                 val user = call.receive<User>()
-                if (authService.registration(user)) {
+                if (authService.registration(user) > 0) {
                     call.respond(HttpStatusCode.OK, "Пользователь успешно зарегистрирован")
                 } else {
                     call.respond(HttpStatusCode.OK, "Ошибка регистрации. Проверьте регистрационные данные")
