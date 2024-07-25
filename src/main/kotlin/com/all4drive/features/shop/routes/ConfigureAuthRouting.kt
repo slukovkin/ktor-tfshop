@@ -18,12 +18,14 @@ fun Route.authRoutes() {
                 val candidate = call.receive<User>()
                 val resultRequest = authService.login(candidate.email, candidate.password)
                 if (resultRequest) {
-                    call.respondText("Доступ разрешен", ContentType.Any, HttpStatusCode.OK)
+//                    call.respond(HttpStatusCode.OK, "Доступ разрешен")
+                    call.respond(HttpStatusCode.OK, resultRequest)
                 } else {
-                    call.respondText("Ошибка логина или пароля", ContentType.Any, HttpStatusCode.Forbidden)
+                    call.respond(HttpStatusCode.OK, resultRequest)
+//                    call.respond(HttpStatusCode.Forbidden, "Ошибка логина или пароля")
                 }
             } catch (err: Error) {
-                call.respondText("Ошибка запроса", ContentType.Any, HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.BadRequest, "Ошибка запроса")
             }
 
         }
@@ -31,13 +33,16 @@ fun Route.authRoutes() {
         post("/registration") {
             try {
                 val user = call.receive<User>()
-                if (authService.registration(user) > 0) {
-                    call.respond(HttpStatusCode.OK, "Пользователь успешно зарегистрирован")
+                val result = authService.registration(user)
+                if (result > 0) {
+                    call.respond(HttpStatusCode.OK, result)
+//                    call.respond(HttpStatusCode.OK, "Пользователь успешно зарегистрирован")
                 } else {
-                    call.respond(HttpStatusCode.OK, "Ошибка регистрации. Проверьте регистрационные данные")
+                    call.respond(HttpStatusCode.OK, result)
+//                    call.respond(HttpStatusCode.OK, "Ошибка регистрации. Проверьте регистрационные данные")
                 }
             } catch (err: Error) {
-                call.respondText { "Произошла ошибка: $err" }
+                call.respond(HttpStatusCode.BadRequest, "Произошла ошибка: $err")
             }
         }
     }
