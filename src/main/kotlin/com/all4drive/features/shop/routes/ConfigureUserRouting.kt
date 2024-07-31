@@ -1,15 +1,18 @@
 package com.all4drive.features.shop.routes
 
 import com.all4drive.features.shop.models.user.User
+import com.all4drive.features.shop.services.TokenService
 import com.all4drive.features.shop.services.UserService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.util.*
 
 fun Route.userRoutes() {
     val userService = UserService()
+    val tokenService = TokenService()
 
     route("/api/users") {
         get {
@@ -25,11 +28,16 @@ fun Route.userRoutes() {
 
         post {
             val candidate = call.receive<User>()
-            val result = userService.create(candidate)
-            if (result == 0)
+            val userId = userService.create(candidate)
+            if (userId == 0) {
                 call.respond(HttpStatusCode.Conflict, "Пользователь уже существует в БД")
-            else
-                call.respond(HttpStatusCode.OK, "Пользователь успешно зарегистрирован в БД")
+            } else {
+                val token = UUID.randomUUID().toString()
+                tokenService.createToken(userId, token)
+
+                call.respond(HttpStatusCode.OK, userId)
+//                call.respond(HttpStatusCode.OK, "Пользователь успешно зарегистрирован в БД")
+            }
         }
 
         patch("{id}") {

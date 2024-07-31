@@ -1,16 +1,20 @@
 package com.all4drive.features.shop.routes
 
+import com.all4drive.features.shop.models.token.TokenResponse
 import com.all4drive.features.shop.models.user.User
 import com.all4drive.features.shop.services.AuthService
+import com.all4drive.features.shop.services.TokenService
 import com.all4drive.features.shop.services.UserService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.util.*
 
 fun Route.authRoutes() {
     val authService = AuthService(userService = UserService())
+    val tokenService = TokenService()
 
     route("/api/auth") {
         post("/login") {
@@ -33,12 +37,15 @@ fun Route.authRoutes() {
         post("/registration") {
             try {
                 val user = call.receive<User>()
-                val result = authService.registration(user)
-                if (result > 0) {
-                    call.respond(HttpStatusCode.OK, result)
+                val userId = authService.registration(user)
+                if (userId > 0) {
+                    val token = UUID.randomUUID().toString()
+                    tokenService.createToken(userId, token)
+                    val response = TokenResponse(userId, token)
+                    call.respond(HttpStatusCode.OK, response)
 //                    call.respond(HttpStatusCode.OK, "Пользователь успешно зарегистрирован")
                 } else {
-                    call.respond(HttpStatusCode.OK, result)
+                    call.respond(HttpStatusCode.OK)
 //                    call.respond(HttpStatusCode.OK, "Ошибка регистрации. Проверьте регистрационные данные")
                 }
             } catch (err: Error) {
